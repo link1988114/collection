@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>投票</title>
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport" />
+    <meta content="yes" name="apple-mobile-web-app-capable" />
+    <meta content="black" name="apple-mobile-web-app-status-bar-style" />
+    <meta content="telephone=no" name="format-detection" />
+
+    <link rel="stylesheet" href="css/ydui.css" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <script src="js/tools/jquery.min.js"></script>
+
+    <script src="js/tools/ydui.flexible.js"></script>
+    <script src="js/tools/myYDUI.js"></script>
+<!--    <script>
+        (!YDUI.device.isMobile && navigator.userAgent.indexOf('Firefox') >= 0) && YDUI.dialog.alert('PC端请使用谷歌内核浏览器查看！');
+    </script> -->
+
+    <script src="js/tools/baicai-validation.js"></script>
+
+    <!-- <script src="js/tools/myUI.js"></script> -->
+</head>
+
+<body style="background-color:white">
+	
+	<div id="blockHolder" class="blockHolderPadding">
+	</div>
+	
+	<div id="videoHolder" style="position:fixed;background-color:black;top:0;left:0;height:100%;width:100%;display:none">
+		<div style="position:absolute;right:0;top:0;width:36px;height:36px;" onclick="hideVideo('vplayer','videoHolder')">
+			<img src="img/close.png" class="fullSize" />
+		</div>
+		<div class="flexBox">
+			<video id="vplayer"
+				style="margin:auto"
+			     width="100%" 
+			　   height="auto" 
+			     controls   
+			     style="object-fit:fill" 
+			     webkit-playsinline="true" 
+			     x-webkit-airplay="true" 
+			     playsinline="true" 
+			     x5-video-player-type="h5" 
+			     x5-video-orientation="h5" 
+			     x5-video-player-fullscreen="true" 
+			     preload="none" >
+			</video>
+		</div>
+	</div>
+	
+	
+	
+	<!-- pop win start -->
+    <div id="pop_alert" style="display:none">   
+        <div class="mask-black-dialog">       
+            <div class="m-confirm m-alert">           
+                <div class="confirm-bd"></div>           
+                <div class="confirm-ft">               
+                    <a href="javascript: closeWarning('pop_alert');" class="confirm-btn primary">确定</a>           
+                </div>       
+            </div>   
+        </div>
+    </div>
+	
+	<div class="mask-black-dialog" id="pop_confirm" style="display:none">
+	    <div class="m-confirm">
+	        <div class="confirm-hd">
+	            <strong class="confirm-title"></strong>
+	        </div>
+	        <div class="confirm-bd"></div>
+	        <div id="popconfirmbtn" class="confirm-ft">
+	            <a href="javascript:closeWarning('pop_confirm');" class="confirm-btn default">取消</a>
+	            <a href="javascript:sendLike();"  class="confirm-btn primary">确定</a>
+	        </div>
+	        <div id="popconfirmsending" class="confirm-ft" style="display:none">
+	        	<a class="confirm-btn primary">正在提交...</a>
+	        </div>
+	    </div>
+	</div>
+	
+	<!-- pop win end -->
+	
+</body>
+
+</html>
+
+
+<script>
+
+
+
+//////////////////////////////////////////////////////////////
+
+var currNoNum = "";
+var voteRemain = 0;
+
+var likeIcon = ["img/like_deactive.png", "img/like_active.png"];
+
+/*
+var pageData = [
+	{imgurl:"https://video.acg123.cn/cover.jpg",noNum:"1232444",initiator:"苏州分局",title:"标题XXXXXXXXXXXXXXXXX",likes:"1723",mylikes:"0",videourl:"https://video.acg123.cn/19546962-1.mp4"},
+	{imgurl:"https://video.acg123.cn/cover.jpg",noNum:"12324441",initiator:"苏州分局",title:"标题XXXXXXXXXXXXXXXXX",likes:"1723",mylikes:"1",videourl:"https://video.acg123.cn/God%20of%20War_20180603213423.mp4"},
+	{imgurl:"https://video.acg123.cn/cover.jpg",noNum:"12324442",initiator:"苏州分局",title:"标题XXXXXXXXXXXXXXXXX",likes:"1723",mylikes:"1",videourl:"https://video.acg123.cn/19546962-1.mp4"},
+	{imgurl:"https://video.acg123.cn/cover.jpg",noNum:"12324443",initiator:"苏州分局",title:"标题XXXXXXXXXXXXXXXXX",likes:"1723",mylikes:"0",videourl:"https://video.acg123.cn/19546962-1.mp4"}
+];
+createListView(pageData,"#blockHolder");
+*/
+
+
+getList();
+
+//////////////////////////////////////////////////////////////
+
+function stopVideo(videoID){
+	var vobj = document.getElementById(videoID);
+	vobj.pause();
+}
+
+function showVideo(src,poster,videoID,videoholderID){
+	var vobj = document.getElementById(videoID);
+	vobj.src = src;
+	vobj.poster = poster;
+	$("#"+videoholderID).show();
+}
+
+function hideVideo(videoID, videoholderID){
+	stopVideo(videoID);
+	$("#"+videoholderID).hide();
+}
+
+
+
+
+function likeit(noNum){
+	currNoNum = noNum;
+	openWarning("pop_confirm", "提示", "确认投票? 剩余"+voteRemain+"次");
+}
+
+
+function getList(){
+	var url="../list.do";
+	var data = {
+	};
+	$.post(url,data,null,"json").success(function(re){
+		if(re.result=="success"){
+			var json = new Function("return"+re.msg)();
+			voteRemain = json.voteRemain;
+			var list = json.data.data;
+			createListView(list,"#blockHolder");  //[{imgurl:"",noNum:"",initiator:"",title:"",likes:"",mylikes:"",videourl:""}]
+		}
+		else{
+			openWarning("pop_alert","提示",re.msg);
+		}
+	}).error(function(e){
+		openWarning("pop_alert","提示","网络错误,请重试");
+	});
+}
+
+
+function sendLike(){
+	
+	$("#popconfirmbtn").hide();
+	$("#popconfirmsending").show();
+	//toggleBtn("#popconfirmbtn","primary","disable");
+	
+	
+	var url = "../vote.do";
+	var data = {
+		noNum:currNoNum
+	};
+	
+	$.post(url,data,null,"json").success(function(re){
+		if(re.result=="success"){
+	 		toggleLikeBtn("#likebtn_"+currNoNum);
+	 		voteRemain--;
+	 		updateLikes(data.noNum);
+			closeWarning('pop_confirm');
+			openWarning("pop_alert","提示","投票成功");
+	 	}
+		else{
+			closeWarning('pop_confirm');
+			openWarning("pop_alert","提示",re.msg);
+		}
+		$("#popconfirmbtn").show();
+		$("#popconfirmsending").hide();
+	}).error(function(e){
+		closeWarning('pop_confirm');
+		openWarning("pop_alert","提示","网络错误,请重试");
+		$("#popconfirmbtn").show();
+		$("#popconfirmsending").hide();
+	});
+	
+	
+}
+
+
+///////////////////////////////////////////////////////////
+
+function createListView(list, holderSelector){
+	var htmlstr = "";
+	for(var i=0; i<list.length; i++){
+		var item = list[i];
+		var imgurl = item.imgurl;
+		var noNum = item.noNum;
+		var initiator = item.initiator;
+		var title = item.title;
+		var likes = item.likes;
+		var mylikes = Number(item.mylikes)>=1 ? 1 : 0;
+		var videourl = item.videourl;
+		
+		htmlstr += 
+			"<div class=\"block\">"+
+				"<div class=\"imgHolder\" onclick=\"showVideo('"+videourl+"','"+videourl+"?vframe/jpg/offset/10','vplayer','videoHolder')\">"+
+					"<img alt=\"\" src=\""+imgurl+"\" class=\"fullSize\" />"+
+					// "<video "+
+					// 	 "width=\"100%\" height=\"100%\" "+
+					//      "controls    "+
+					//      "style=\"object-fit:fill\"  "+
+					//      "webkit-playsinline=\"true\"  "+
+					//      "x-webkit-airplay=\"true\"  "+
+					//      "playsinline=\"true\"  "+
+					//      "x5-video-player-type=\"h5\"  "+
+					//      "x5-video-orientation=\"h5\"  "+
+					//      "x5-video-player-fullscreen=\"true\"  "+
+					//      "preload=\"none\"  "+
+					//      "poster=\""+imgurl+"\"    "+
+					//      "src=\""+videourl+"\"> "+
+					// "</video> "+
+					"<div class=\"space\"></div>"+
+				"</div>"+
+				"<div class=\"infoBox\">"+
+					"<p class=\"cgrey\">No:"+noNum+"</p>"+
+					"<p class=\"cgrey marginB5\">"+initiator+"选送:</p>"+
+					"<p class=\"infoTitle\">"+title+"</p>"+
+					"<div class=\"bottomBar\">"+
+						"<div class=\"infoImg\" onclick=\"likeit('"+noNum+"')\">"+
+							"<img id=\"likebtn_"+noNum+"\" src=\""+likeIcon[mylikes]+"\" class=\"fullSize "+(mylikes==0? "dislikeit":"likeit")+"\" />"+
+						"</div>"+
+						"<span id=\"likesspan_"+noNum+"\" class=\"infoLikes\">"+likes+"</span>"+
+						"<div class=\"space\"></div>"+
+					"</div>"+
+					"<div class=\"space\"></div>"+
+				"</div>"+
+				"<div class=\"space\"></div>"+
+			"</div>";
+	}
+	$(holderSelector).html(htmlstr);
+}
+
+
+function toggleLikeBtn(likeBtnSelector){
+	if($(likeBtnSelector).hasClass("likeit")){
+		//$(likeBtnSelector).removeClass("likeit");
+		//$(likeBtnSelector).addClass("dislikeit");
+		//$(likeBtnSelector).attr("src",likeIcon[0]);
+	}
+	else{
+		$(likeBtnSelector).removeClass("dislikeit");
+		$(likeBtnSelector).addClass("likeit");
+		$(likeBtnSelector).attr("src",likeIcon[1]);
+	}
+}
+
+function updateLikes(noNum){
+	var likes = Number($("#likesspan_"+noNum).html());
+	$("#likesspan_"+noNum).html(likes + 1);
+}
+
+
+
+
+</script>

@@ -1,0 +1,102 @@
+.space{
+	clear:both;
+	height:0;
+	width:100%;
+	border:none;
+	font-size:0
+}
+
+.page-title {
+    font-size: .35rem;
+    margin-bottom: .5rem;
+    font-weight: normal;
+    line-height: 0.42rem;
+    text-align: center;
+}
+
+.page-title2 {
+    font-size: .35rem;
+    margin-bottom: .3rem;
+    font-weight: normal;
+    line-height: 0.42rem;
+    text-align: center;
+}
+
+/****************************************************/
+
+.blockHolderPadding{
+	padding:10px 5px 10px 5px;
+}
+
+.block{
+	padding:7px; width:100%; height:120px; box-shadow: 2px 2px 5px #888888;margin-bottom:5px;
+}
+
+.imgHolder{
+	width:56%;height:100%;margin-right:12px;background-color:grey;float:left;
+}
+
+.infoBox{
+	float:left;width:40%;height:100%;position:relative;
+}
+
+.infoTitle{
+	word-break:break-all;margin-bottom:5px;font-size:16px;
+}
+
+.infoImg{
+	width:20px;height:20px;float:left;
+}
+
+.infoLikes{
+	float:left;font-size:14px;line-height:20px;margin-left:5px;
+}
+
+
+/*************************************************/
+
+.flexBox{
+	display: -webkit-flex; /* Safari */
+	display: flex;
+	width:100%;height:100%;
+	justify-content:center;
+	align-items:center;
+}
+
+.crossCenter{
+	justify-content:center;
+	align-items:center;
+}
+
+
+/*************************************************/
+
+.fullSize{
+	width:100%; height:100%;
+}
+
+.w25P {
+    width:25%;
+}
+
+.indent2{
+	text-indent:2em
+}
+
+.cgrey{
+	color:grey;
+}
+
+.marginB5{
+	margin-bottom:5px;
+}
+
+.bottomBar{
+	position:absolute;bottom:0;
+}
+
+
+
+
+
+

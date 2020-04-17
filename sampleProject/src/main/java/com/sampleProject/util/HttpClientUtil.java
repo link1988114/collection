@@ -22,12 +22,14 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
+
 
 @SuppressWarnings("deprecation")
 public class HttpClientUtil
@@ -312,7 +314,31 @@ public class HttpClientUtil
 		return result;
 	}
 	
-	
+	public String httpsJsonPost(String url,JSONObject jsonObject,String encoding) throws Exception
+	{
+		String result = "";
+		HttpPost httpPost = new HttpPost(url);
+		StringEntity strEntity = new StringEntity(jsonObject.toString());
+		strEntity.setContentEncoding(encoding);
+		strEntity.setContentType("application/json");
+		
+		httpPost.setEntity(strEntity);
+		if(httpClient == null)
+		{
+			httpClient = createSSLClient();
+		}
+		httpResponse = httpClient.execute(httpPost);
+		HttpEntity resEntity = httpResponse.getEntity();
+		if(resEntity != null)
+		{
+			result = EntityUtils.toString(resEntity,"utf8");
+		}
+		else
+		{
+			result = "";
+		}
+		return result;
+	}
 	
 
 	
@@ -340,6 +366,174 @@ public class HttpClientUtil
 		return result;
 	}
 	
+	
+	
+	
+	
+	
+	public String sendGet(String jsonstr, String url, String encoding, boolean isHttps)
+	{
+		String result = "";
+		
+		try 
+		{
+			String param = "";
+			if(jsonstr != null && !jsonstr.equals(""))
+			{
+				JSONObject json = new JSONObject(jsonstr);
+				Iterator<String> iter = json.keys();
+				while(iter.hasNext())
+				{
+					String key = iter.next();
+					String value = json.optString(key);
+					param+=key+"="+value+"&";
+				}
+			}
+			if(!param.equals(""))
+			{
+				param = param.substring(0,param.length()-1);
+				url=url+"?"+param;
+			}
+			
+			HttpGet httpGet = new HttpGet(url);
+			if(httpClient == null)
+			{
+				httpClient = isHttps? createSSLClient() : createNormalClient();
+			}
+			httpResponse = httpClient.execute(httpGet);
+			HttpEntity resEntity = httpResponse.getEntity();
+			if(resEntity != null)
+			{
+				result = EntityUtils.toString(resEntity, encoding);
+			}
+			else
+			{
+				result = "";
+			}
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			result = "";
+		}
+		finally 
+		{
+//			closeHttpClient();
+		}
+
+		return result;
+	}
+	
+	
+	
+	public String sendPost(String jsonstr, String xmlStr, String url, String encoding, boolean isHttps, boolean isJson)
+	{
+		String result = "";
+		
+		boolean isXML = false;
+		if(xmlStr != null)
+		{
+			isXML = true;
+			isJson = false;
+		}
+		else
+		{
+			jsonstr = testJsonParams(jsonstr);
+			if(jsonstr==null)
+			{
+				return "post entity error";
+			}
+		}
+		
+		String contentStr = isXML? xmlStr : jsonstr;
+		try 
+		{
+			HttpPost httpPost = new HttpPost(url);
+			
+			//create entity
+			if(isJson)
+			{
+				//json
+				StringEntity strEntity = new StringEntity(contentStr);
+				strEntity.setContentEncoding(encoding);
+				strEntity.setContentType("application/json");
+				httpPost.setEntity(strEntity);
+			}
+			else 
+			{
+				//form
+				if(isXML)
+				{
+					List<BasicNameValuePair> parameters = new ArrayList<BasicNameValuePair>();
+					parameters.add(new BasicNameValuePair("xml", contentStr));
+					httpPost.setEntity(new UrlEncodedFormEntity(parameters, encoding));
+				}
+				else
+				{
+					List<NameValuePair> paramList = new ArrayList<NameValuePair>();
+					if(contentStr != null && !contentStr.equals(""))
+					{
+						JSONObject json = new JSONObject(jsonstr);
+						Iterator<String> iter = json.keys();
+						while(iter.hasNext())
+						{
+							String key = iter.next();
+							String value = json.optString(key);
+							paramList.add(new BasicNameValuePair(key, value));
+						}
+					}
+					httpPost.setEntity(new UrlEncodedFormEntity(paramList, encoding));
+				}
+			}
+			
+			//send data
+			if(httpClient == null)
+			{
+				httpClient = isHttps? createSSLClient() : createNormalClient();	
+			}
+			httpResponse = httpClient.execute(httpPost);
+			
+			//get result
+//			System.out.println(httpResponse);
+			HttpEntity resEntity = httpResponse.getEntity();
+			if(resEntity != null)
+			{
+				result = EntityUtils.toString(resEntity,encoding);
+			}
+			else
+			{
+				result = "";
+			}
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			result = "";
+		}
+		finally 
+		{
+//			closeHttpClient();
+		}
+		
+		return result;
+	}
+	
+	
+	/////////////////////////////////////////////////////////////////////////////
+	
+	private String testJsonParams(String jsonstr)
+	{
+		try 
+		{
+			jsonstr = new JSONObject(jsonstr).toString();
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			jsonstr = null;
+		}
+		return jsonstr;
+	}
 
 
 }

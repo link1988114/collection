@@ -2,15 +2,15 @@
 Navicat MySQL Data Transfer
 
 Source Server         : localhost
-Source Server Version : 50716
-Source Host           : localhost:3306
-Source Database       : valuation
+Source Server Version : 50717
+Source Host           : 127.0.0.1:3306
+Source Database       : sampledb
 
 Target Server Type    : MYSQL
-Target Server Version : 50716
+Target Server Version : 50717
 File Encoding         : 65001
 
-Date: 2019-04-02 20:53:57
+Date: 2020-04-17 17:30:57
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -84,3 +84,19 @@ CREATE TABLE `sys_users` (
 -- ----------------------------
 INSERT INTO `sys_users` VALUES ('test', '96e79218965eb72c92a549dd5a330112', '100', '20190312 08:49:59', '0', null);
 INSERT INTO `sys_users` VALUES ('test2', '96e79218965eb72c92a549dd5a330112', '50', '20180308 17:06:42', '0', null);
+
+-- ----------------------------
+-- Table structure for `wx_access`
+-- ----------------------------
+DROP TABLE IF EXISTS `wx_access`;
+CREATE TABLE `wx_access` (
+  `serial` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `wx_token` varchar(200) DEFAULT NULL,
+  `wx_expire` varchar(200) DEFAULT '0',
+  PRIMARY KEY (`serial`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Records of wx_access
+-- ----------------------------
+INSERT INTO `wx_access` VALUES ('1', '32_oN2r8fojv-AHX6sCIzbVnAW5fasF-mjRwtFf_by85tHEtF_rh3ocuJdUylN4prMxaoGy3LEPZW7_eb1WqCpWSstsBlp4CcUTWHdyXdNQxutq8Ro_0lKeEleByAHLO5O24zuDtAefM6iEpaEZJFMfAAACYF', '1587116370110');

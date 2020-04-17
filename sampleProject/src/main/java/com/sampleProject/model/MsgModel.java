@@ -26,5 +26,20 @@ public class MsgModel extends BaseModel
 	}
 	
 	
+	
+	public void simplePack(boolean flag, String trueMsg, String falseMsg)
+	{
+		if(flag)
+		{
+			this.result = "success";
+			this.msg = trueMsg;
+		}
+		else 
+		{
+			this.result = "error";
+			this.msg = falseMsg;
+		}
+	}
+	
 
 }

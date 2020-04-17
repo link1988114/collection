@@ -36,4 +36,8 @@ public class SQLgetter
 	public String update_user_updateMenu = "com.sampleProject.mapper.UserMapper.updateMenu";
 	
 	
+	public String select_wx_getToken = "com.sampleProject.mapper.WxMapper.getToken";
+	public String insert_wx_saveToken = "com.sampleProject.mapper.WxMapper.saveToken";
+	
+	
 }

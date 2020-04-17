@@ -7,6 +7,9 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.sampleProject.model.MsgModel;
+import com.sampleProject.model.WxModel;
+import com.sampleProject.service.WxService;
 import com.sampleProject.util.HttpClientUtil;
 import com.sampleProject.util.RequestUtil;
 import com.sampleProject.util.WxSharedInfo;
@@ -44,6 +47,16 @@ public class WxController
 		//redirectURL = wxService.checkOpenid(jsonstr, session);
 
 		return "redirect:"+redirectURL;
+	}
+	
+	
+	@RequestMapping("/getToken.do")
+	public void getToken(WxModel wxModel, HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws Exception
+	{
+		wxModel.setSerial("1");
+		WxService wxService = new WxService();
+		MsgModel msg = wxService.getToken(wxModel);
+		resp.getWriter().write(msg.toString());
 	}
 	
 
